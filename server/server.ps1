@@ -4,9 +4,11 @@
 
 #Add-Type -AssemblyName System.Net.Sockets
 
-$listener = [System.Net.Sockets.TcpListener]9000
+$port = 9000                # Replace with your desired port number
+
+$listener = [System.Net.Sockets.TcpListener]::new($port)
 $listener.Start()
-Write-Host "Listening on port 9000..."
+Write-Host "Listening on port $port..."
 while ($true) {
     $client = $listener.AcceptTcpClient()
     $stream = $client.GetStream()
