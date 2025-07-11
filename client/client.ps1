@@ -26,14 +26,14 @@ function Connect-TcpClient {
     }
 }
 
-function Maintain-Connection {
+function Test-ConnectionStability {
     param(
         [System.Net.Sockets.TcpClient]$client,
         [string]$server,
         [int]$port
     )
     while ($true) {
-        if ($client -eq $null -or -not $client.Connected) {
+        if ($null -eq $client -or -not $client.Connected) {
             Write-Host "Connection lost. Attempting to reconnect..."
             $client = Connect-TcpClient -server $server -port $port
             Start-Sleep -Seconds 5
@@ -59,4 +59,4 @@ function Maintain-Connection {
 
 # Main script
 $client = Connect-TcpClient -server $server -port $port
-Maintain-Connection -client $client -server $server -port $port
+Test-ConnectionStability -client $client -server $server -port $port
