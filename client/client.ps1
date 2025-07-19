@@ -20,7 +20,7 @@ param(
 if ($Help) {
     Write-Host "PowerShell TCP Client - Ping Response Time Tester"
     Write-Host ""
-    Write-Host "Usage: .\client.ps1 [-Server <hostname/ip>] [-Port <port>] [-Help]"
+    Write-Host "Usage: .\client\client.ps1 [-Server <hostname/ip>] [-Port <port>] [-Help]"
     Write-Host ""
     Write-Host "Parameters:"
     Write-Host "  -Server    Target server hostname or IP address (default: localhost)"
@@ -28,9 +28,9 @@ if ($Help) {
     Write-Host "  -Help      Show this help message"
     Write-Host ""
     Write-Host "Examples:"
-    Write-Host "  .\client.ps1"
-    Write-Host "  .\client.ps1 -Server 192.168.1.120 -Port 8080"
-    Write-Host "  .\client.ps1 -Server 10.0.0.1"
+    Write-Host "  .\client\client.ps1"
+    Write-Host "  .\client\client.ps1 -Server 192.168.1.120 -Port 8080"
+    Write-Host "  .\client\client.ps1 -Server 10.0.0.1"
     exit 0
 }
 
@@ -73,8 +73,11 @@ function Test-ConnectionStability {
             $stream = $client.GetStream()
             $reader = New-Object System.IO.StreamReader($stream)
             
-            if ($stream.CanWrite) {
-                # Send ping with timestamp
+            try {
+                # Test if connection is still alive with a zero-byte write
+                $stream.Write([byte[]]::new(0), 0, 0)
+                
+                # If we get here, connection is still good
                 $startTime = Get-Date
                 $message = "PING:$($startTime.Ticks)"
                 $buffer = [System.Text.Encoding]::ASCII.GetBytes($message + "`n")
@@ -85,28 +88,40 @@ function Test-ConnectionStability {
                 $timeout = 5000 # 5 seconds timeout
                 $client.ReceiveTimeout = $timeout
                 
-                try {
-                    if ($stream.DataAvailable -or $reader.Peek() -ge 0) {
-                        $response = $reader.ReadLine()
-                        $endTime = Get-Date
-                        
-                        if ($response -and $response.StartsWith("PONG:")) {
-                            $sentTicks = $response.Split(':')[1]
-                            $responseTime = ($endTime.Ticks - [long]$sentTicks) / 10000 # Convert to milliseconds
-                            Write-Host "Received pong - Response time: $($responseTime.ToString('F2')) ms"
-                        }
+                if ($stream.DataAvailable -or $reader.Peek() -ge 0) {
+                    $response = $reader.ReadLine()
+                    $endTime = Get-Date
+                    
+                    if ($response -and $response.StartsWith("PONG:")) {
+                        $sentTicks = $response.Split(':')[1]
+                        $responseTime = ($endTime.Ticks - [long]$sentTicks) / 10000 # Convert to milliseconds
+                        Write-Host "Received pong - Response time: $($responseTime.ToString('F2')) ms"
                     }
+                } else {
+                    throw "No response from server"
                 }
-                catch {
-                    Write-Host "Timeout waiting for pong response"
-                }
+            }
+            catch {
+                Write-Host "Connection lost or timeout waiting for pong response"
+                throw "Connection error" # This will trigger the outer catch block
             }
             Start-Sleep -Seconds 10
         }
         catch {
             Write-Host "Error during communication: $_"
-            $client.Close()
-            $client = $null
+            if ($null -ne $client) {
+                $client.Close()
+                $client.Dispose()
+                $client = $null
+            }
+            if ($null -ne $reader) {
+                $reader.Dispose()
+                $reader = $null
+            }
+            if ($null -ne $stream) {
+                $stream.Dispose()
+                $stream = $null
+            }
         }
     }
 }

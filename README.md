@@ -38,31 +38,31 @@ A PowerShell-based TCP client/server application that establishes persistent con
 
 ### Server Script (`server/server.ps1`)
 ```powershell
-Usage: .\server.ps1 [-Port <port>] [-Help]
+Usage: .\server\server.ps1 [-Port <port>] [-Help]
 
 Parameters:
   -Port      Port number to listen on (1-65535, default: 9000)
   -Help      Show help message
 
 Examples:
-  .\server.ps1
-  .\server.ps1 -Port 8080
-  .\server.ps1 -Port 3000
+  .\server\server.ps1
+  .\server\server.ps1 -Port 8080
+  .\server\server.ps1 -Port 3000
 ```
 
 ### Client Script (`client/client.ps1`)
 ```powershell
-Usage: .\client.ps1 [-Server <hostname/ip>] [-Port <port>] [-Help]
+Usage: .\client\client.ps1 [-Server <hostname/ip>] [-Port <port>] [-Help]
 
 Parameters:
-  -Server    Target server hostname or IP address (default: 192.168.1.120)
+  -Server    Target server hostname or IP address (default: localhost)
   -Port      Target server port number (1-65535, default: 9000)
   -Help      Show help message
 
 Examples:
-  .\client.ps1
-  .\client.ps1 -Server localhost -Port 8080
-  .\client.ps1 -Server 10.0.0.1
+  .\client\client.ps1
+  .\client\client.ps1 -Server 192.168.1.120 -Port 8080
+  .\client\client.ps1 -Server 10.0.0.1
 ```
 
 ## How It Works
