@@ -11,7 +11,7 @@ param(
 )
 
 # Import shared network utilities
-. "$PSScriptRoot\common\NetworkUtils.ps1"
+. "$PSScriptRoot\..\common\NetworkUtils.ps1"
 
 # Show help if requested
 if ($Help) {
@@ -33,9 +33,7 @@ if ($Help) {
 # Validate port number
 Assert-ValidPort -Port $Port -ScriptName ".\server.ps1"
 
-#Add-Type -AssemblyName System.Net.Sockets
-
-$listener = [System.Net.Sockets.TcpListener]::new($Port)
+$listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Any, $Port)
 $listener.Start()
 Write-Host "Server started - Listening on port $Port..."
 while ($true) {

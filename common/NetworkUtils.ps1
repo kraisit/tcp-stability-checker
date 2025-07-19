@@ -86,5 +86,4 @@ function Assert-ValidPort {
     }
 }
 
-# Export functions for module usage
-Export-ModuleMember -Function Test-PortNumber, Assert-ValidPort
+# Functions will be available through dot-sourcing

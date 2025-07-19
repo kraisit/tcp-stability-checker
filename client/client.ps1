@@ -4,7 +4,7 @@
 
 param(
     [Parameter(Mandatory=$false)]
-    [string]$Server = "192.168.1.120",
+    [string]$Server = "localhost",
     
     [Parameter(Mandatory=$false)]
     [int]$Port = 9000,
@@ -14,7 +14,7 @@ param(
 )
 
 # Import shared network utilities
-. "$PSScriptRoot\common\NetworkUtils.ps1"
+. "$PSScriptRoot\..\common\NetworkUtils.ps1"
 
 # Show help if requested
 if ($Help) {
@@ -23,22 +23,19 @@ if ($Help) {
     Write-Host "Usage: .\client.ps1 [-Server <hostname/ip>] [-Port <port>] [-Help]"
     Write-Host ""
     Write-Host "Parameters:"
-    Write-Host "  -Server    Target server hostname or IP address (default: 192.168.1.120)"
+    Write-Host "  -Server    Target server hostname or IP address (default: localhost)"
     Write-Host "  -Port      Target server port number (1-65535, default: 9000)"
     Write-Host "  -Help      Show this help message"
     Write-Host ""
     Write-Host "Examples:"
     Write-Host "  .\client.ps1"
-    Write-Host "  .\client.ps1 -Server localhost -Port 8080"
+    Write-Host "  .\client.ps1 -Server 192.168.1.120 -Port 8080"
     Write-Host "  .\client.ps1 -Server 10.0.0.1"
     exit 0
 }
 
 # Validate port number
 Assert-ValidPort -Port $Port -ScriptName ".\client.ps1"
-
-#Add-Type -AssemblyName System.Net.Sockets
-#Add-Type -AssemblyName System.Text
 
 Write-Host "Connecting to server: $Server on port: $Port"
 
